@@ -8,8 +8,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/currencies', [ExchangeRateController::class, 'currencies']);
+Route::get('/currencies', [ExchangeRateController::class,'currencies']);
 
-Route::get('/rate', [ExchangeRateController::class, 'rate']);
+Route::get('/rate', [ExchangeRateController::class,'rate']);
 
-Route::get('/convert', [ExchangeRateController::class, 'convert']);
+Route::match(['get','post'],'/convert',
+[ExchangeRateController::class,'convert']);

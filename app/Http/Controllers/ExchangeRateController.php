@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Models\ConversionHistory;
 
 class ExchangeRateController extends Controller
 {
 
-    // Show currencies
+    // ==============================
+    // Show All Available Currencies
+    // ==============================
+
     public function currencies()
     {
         $response = Http::get('https://open.er-api.com/v6/latest/USD');
@@ -16,10 +21,10 @@ class ExchangeRateController extends Controller
 
         $rates = $data['rates'] ?? [];
 
-        // Convert to code => name format (for your blade)
         $currencies = [];
 
         foreach ($rates as $code => $value) {
+
             $currencies[$code] = $code;
         }
 
@@ -27,7 +32,11 @@ class ExchangeRateController extends Controller
     }
 
 
-    // Get exchange rate
+
+    // ==============================
+    // Current USD -> INR Rate
+    // ==============================
+
     public function rate()
     {
         $response = Http::get('https://open.er-api.com/v6/latest/USD');
@@ -40,20 +49,66 @@ class ExchangeRateController extends Controller
     }
 
 
-    // Convert currency
-    public function convert()
-    {
-        $amount = 100;
 
-        $response = Http::get('https://open.er-api.com/v6/latest/USD');
+    // ==============================
+    // Advanced Currency Converter
+    // ==============================
+
+    public function convert(Request $request)
+    {
+
+        $from = $request->from ?? 'USD';
+
+        $to = $request->to ?? 'INR';
+
+        $amount = $request->amount ?? 1;
+
+
+        // API Request
+        $response = Http::get("https://open.er-api.com/v6/latest/$from");
 
         $data = $response->json();
 
-        $rate = $data['rates']['INR'] ?? 0;
 
+        // Get all currencies
+        $currencies = array_keys($data['rates']);
+
+
+        // Exchange Rate
+        $rate = $data['rates'][$to] ?? 0;
+
+
+        // Final Result
         $result = $amount * $rate;
 
-        return view('convert', compact('result','amount'));
-    }
 
+        // Save History
+        ConversionHistory::create([
+
+            'from_currency' => $from,
+
+            'to_currency' => $to,
+
+            'amount' => $amount,
+
+            'converted_amount' => $result
+
+        ]);
+
+
+        // Latest History
+        $histories = ConversionHistory::latest()->take(10)->get();
+
+
+        return view('convert', compact(
+
+            'result',
+            'amount',
+            'from',
+            'to',
+            'currencies',
+            'histories'
+
+        ));
+    }
 }

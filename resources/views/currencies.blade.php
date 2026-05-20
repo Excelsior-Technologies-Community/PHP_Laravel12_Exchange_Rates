@@ -1,260 +1,235 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
     <title>Available Currencies</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Segoe UI',sans-serif;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
         }
 
-        body{
-            min-height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            background:linear-gradient(135deg,#1e3c72,#2a5298);
-            padding:30px;
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            padding: 30px;
         }
 
-        .card{
-            width:100%;
-            max-width:700px;
-            background:white;
-            border-radius:20px;
-            padding:35px;
-            box-shadow:0 15px 40px rgba(0,0,0,0.3);
+        .card {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         }
 
-        .heading{
-            text-align:center;
-            margin-bottom:25px;
+        .heading {
+            text-align: center;
+            margin-bottom: 25px;
         }
 
-        .heading h2{
-            font-size:32px;
-            color:#1e3c72;
-            margin-bottom:10px;
+        .heading h2 {
+            font-size: 32px;
+            color: #1e3c72;
         }
 
-        .heading p{
-            color:#777;
-            font-size:15px;
+        .nav {
+            text-align: center;
+            margin-bottom: 25px;
         }
 
-        .nav{
-            text-align:center;
-            margin-bottom:25px;
+        .nav a {
+            text-decoration: none;
+            padding: 10px 18px;
+            background: #2a5298;
+            color: white;
+            border-radius: 8px;
+            margin: 5px;
+            display: inline-block;
         }
 
-        .nav a{
-            text-decoration:none;
-            padding:10px 18px;
-            background:#2a5298;
-            color:white;
-            border-radius:8px;
-            margin:5px;
-            display:inline-block;
-            transition:0.3s;
-            font-size:14px;
+        .favorites-section {
+            background: #f0f4ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
         }
 
-        .nav a:hover{
-            background:#1e3c72;
+        .favorites-section h3 {
+            margin-bottom: 15px;
+            color: #1e3c72;
         }
 
-        .search-box{
-            margin-bottom:20px;
+        .fav-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .search-box input{
-            width:100%;
-            padding:14px;
-            border:1px solid #ddd;
-            border-radius:10px;
-            font-size:15px;
-            outline:none;
-            transition:0.3s;
+        .fav-item {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .search-box input:focus{
-            border-color:#2a5298;
-            box-shadow:0 0 10px rgba(42,82,152,0.2);
+        .remove-fav {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            font-size: 12px;
         }
 
-        .currency-list{
-            max-height:450px;
-            overflow-y:auto;
-            border-radius:12px;
-            border:1px solid #eee;
+        .search-box {
+            margin-bottom: 20px;
         }
 
-        .currency-item{
-            padding:15px;
-            border-bottom:1px solid #eee;
-            font-size:15px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            transition:0.3s;
+        .search-box input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
         }
 
-        .currency-item:hover{
-            background:#f5f8ff;
+        .currency-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid #eee;
         }
 
-        .currency-code{
-            font-weight:bold;
-            color:#1e3c72;
-            font-size:16px;
+        .currency-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .badge{
-            background:#e8f0ff;
-            color:#2a5298;
-            padding:6px 12px;
-            border-radius:20px;
-            font-size:12px;
-            font-weight:600;
+        .currency-item:hover {
+            background: #f5f8ff;
         }
 
-        .empty{
-            text-align:center;
-            padding:20px;
-            color:#888;
+        .currency-code {
+            font-weight: bold;
+            color: #1e3c72;
         }
 
-        @media(max-width:768px){
-
-            .heading h2{
-                font-size:25px;
-            }
-
-            .currency-item{
-                flex-direction:column;
-                align-items:flex-start;
-                gap:10px;
-            }
-
+        .add-fav {
+            background: #4caf50;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 15px;
+            color: white;
+            cursor: pointer;
         }
 
+        .badge {
+            background: #e8f0ff;
+            color: #2a5298;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
     </style>
-
 </head>
-
 <body>
-
 <div class="card">
-
     <div class="heading">
-
-        <h2>🌍 Available Currencies</h2>
-
-        <p>Browse and search all supported currencies</p>
-
+        <h2> Available Currencies</h2>
+        <p>Browse and manage your favorite currencies</p>
     </div>
-
-
 
     <div class="nav">
-
-        <a href="/currencies">Currencies</a>
-
-        <a href="/rate">USD → INR Rate</a>
-
-        <a href="/convert">Converter</a>
-
+        <a href="{{ url('/dashboard') }}">Dashboard</a>
+        <a href="{{ url('/currencies') }}">Currencies</a>
+        <a href="{{ url('/rate') }}">USD → INR Rate</a>
+        <a href="{{ url('/convert') }}">Converter</a>
+        <a href="{{ url('/compare') }}">Compare</a>
     </div>
 
+    @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-
-    <!-- SEARCH BOX -->
+    <!-- Favorites Section -->
+    @if($favorites->count() > 0)
+    <div class="favorites-section">
+        <h3> Your Favorites</h3>
+        <div class="fav-list">
+            @foreach($favorites as $fav)
+            <div class="fav-item">
+                <span>{{ $fav->currency_code }}</span>
+                <form method="POST" action="{{ url('/favorite/remove/' . $fav->currency_code) }}" style="display: inline;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="remove-fav" onclick="return confirm('Remove from favorites?')">×</button>
+                </form>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <div class="search-box">
-
-        <input
-            type="text"
-            id="search"
-            placeholder="🔍 Search Currency Code...">
-
+        <input type="text" id="search" placeholder=" Search Currency Code...">
     </div>
-
-
-
-    <!-- CURRENCY LIST -->
 
     <div class="currency-list">
-
         @forelse($currencies as $code => $currency)
-
             <div class="currency-item">
-
+                <div class="currency-code">{{ $code }}</div>
                 <div>
-
-                    <div class="currency-code">
-
-                        {{ $code }}
-
-                    </div>
-
+                    @if(!$favorites->contains('currency_code', $code))
+                    <form method="POST" action="{{ url('/favorite/add') }}" style="display: inline;">
+                        @csrf
+                        <input type="hidden" name="currency_code" value="{{ $code }}">
+                        <button type="submit" class="add-fav">+ Add Favorite</button>
+                    </form>
+                    @else
+                    <span class="badge">Favorite</span>
+                    @endif
                 </div>
-
-                <span class="badge">
-
-                    Supported
-
-                </span>
-
             </div>
-
         @empty
-
-            <div class="empty">
-
-                No currencies found
-
-            </div>
-
+            <div class="empty">No currencies found</div>
         @endforelse
-
     </div>
-
 </div>
 
-
-
-<!-- SEARCH SCRIPT -->
-
 <script>
-
-document.getElementById('search')
-.addEventListener('keyup', function(){
-
+document.getElementById('search').addEventListener('keyup', function() {
     let value = this.value.toLowerCase();
-
     let items = document.querySelectorAll('.currency-item');
-
     items.forEach(item => {
-
-        item.style.display =
-        item.innerText.toLowerCase().includes(value)
-        ? 'flex'
-        : 'none';
-
+        item.style.display = item.innerText.toLowerCase().includes(value) ? 'flex' : 'none';
     });
-
 });
-
 </script>
-
 </body>
-
 </html>

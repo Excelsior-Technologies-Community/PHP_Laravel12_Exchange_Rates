@@ -71,7 +71,7 @@
             <a href="/convert">Convert</a>
         </div>
 
-        <h2>💱 Exchange Rate</h2>
+        <h2>Exchange Rate</h2>
 
         <div class="rate">
             1 USD = {{ $rate }} INR
